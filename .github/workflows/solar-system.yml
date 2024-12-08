@@ -65,7 +65,7 @@ jobs:
 
     - name: Install Dependencies
       run: npm install
-      
+
     - name: Check Code Coverage
       continue-on-error: true
       run: npm run coverage
@@ -90,15 +90,8 @@ jobs:
     - name: Dockerhub Login
       uses: docker/login-action@v2.2.0
       with:
-        username: ${{ vars.DOCKERHUB_USERNAME }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-    - name: GHCR Login
-      uses: docker/login-action@v2.2.0
-      with:
-        registry: ghcr.io
-        username: ${{ github.repository_owner }}
-        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Docker Build For Testing
       uses: docker/build-push-action@v4
@@ -130,4 +123,3 @@ jobs:
         push: true
         tags: |
             ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
-          #  ghcr.io/${{ github.repository_owner }}/solar-system:${{ github.sha }}
