@@ -136,8 +136,8 @@ jobs:
       with:
         version: 'v1.29.0'
       
-    - name: Fetch Kubernetes Cluster Details
+    - name: Check kubectl version and nodes
       run: |
-        kubectl --version
-        echo \n
+        kubectl version --client
+        echo "\n"
         kubectl get nodes
