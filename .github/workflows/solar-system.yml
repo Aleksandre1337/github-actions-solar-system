@@ -135,6 +135,16 @@ jobs:
       uses: azure/setup-kubectl@v4
       with:
         version: 'v1.29.0'
+    
+    - name: start minikube
+      id: minikube
+      uses: medyagh/setup-minikube@latest
+    
+    # - name: Set Kubeconfig file
+    #   uses: azure/k8s-set-context@v3
+    #   with:
+    #     method: kubeconfig
+    #     kubeconfig: ${{ secrets.KUBECONFIG }}
       
     - name: Check kubectl version and nodes
       run: |
