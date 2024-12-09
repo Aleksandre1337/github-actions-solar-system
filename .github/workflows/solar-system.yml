@@ -10,7 +10,7 @@ on:
 jobs:
   unit-testing:
     name: Unit Testing
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     container:
       image: node:18
     services:
@@ -58,7 +58,7 @@ jobs:
         MONGO_URI: 'mongodb://mongo:27017/superData'
         MONGO_USERNAME: non-prod-user
         MONGO_PASSWORD: non-prod-password
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
     needs: [unit-testing, code-coverage]
     permissions: 
         packages: write
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
@@ -126,21 +126,21 @@ jobs:
   
   dev-deploy:
     needs: [docker]
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
 
-    - name: Install kubectl CLI
-      uses: azure/setup-kubectl@v4
-      with:
-        version: 'v1.31.0'
+    # - name: Install kubectl CLI
+    #   uses: azure/setup-kubectl@v4
+    #   with:
+    #     version: 'v1.31.0'
     
-    - name: Start Minikube
-      id: minikube
-      uses: medyagh/setup-minikube@latest
-      with:
-        addons: ingress
+    # - name: Start Minikube
+    #   id: minikube
+    #   uses: medyagh/setup-minikube@latest
+    #   with:
+    #     addons: ingress
       
     - name: Check kubectl version and nodes
       run: |
@@ -167,3 +167,16 @@ jobs:
     
     - name: Check Kubernetes Manifests after token replacement
       run: cat kubernetes/development/*.yaml
+    
+    - name: Create MongoDB Secret
+      run: |
+        kubectl -n ${{ vars.NAMESPACE }} create secret generic mongo-db-creds \
+        --from-literal MONGO_URI=$${ env.MONGO_URI } \
+        --from-literal MONGO_USERNAME=$${ vars.MONGO_USERNAME } \
+        --from-literal MONGO_PASSWORD=$${ secrets.MONGO_PASSWORD } \
+        --save-config \
+        --dry-run-client -o yaml | kubectl apply -f -
+
+    - name: Deploy to Development Environment
+      run: kubectl apply -f kubernetes/development
+    
