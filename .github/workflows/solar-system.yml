@@ -134,15 +134,18 @@ jobs:
   dev-deploy:
     needs: [docker]
     runs-on: self-hosted
+    env:
+      
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
-      
-    - name: Set KUBECONFIG
-      run: |
-        echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > $HOME/.kube/config
-        export KUBECONFIG=$HOME/.kube/config
 
+    - name: Set KUBECONFIG 
+      uses: azure/k8s-set-context@v4
+      with:
+         method: kubeconfig
+         kubeconfig: ${{ secrets.KUBECONFIG_EC2 }}
+      
     - name: Check kubectl version and nodes
       run: |
         kubectl version
