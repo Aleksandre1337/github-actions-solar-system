@@ -150,7 +150,7 @@ jobs:
       
     - name: Check kubectl version and nodes
       run: |
-        kubectl version --client
+        kubectl version
         kubectl get nodes
 
     - name: Get Cluster IP of ingress-nginx-controller
