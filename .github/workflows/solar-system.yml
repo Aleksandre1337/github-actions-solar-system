@@ -136,18 +136,12 @@ jobs:
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
-
-    # - name: Install kubectl CLI
-    #   uses: azure/setup-kubectl@v4
-    #   with:
-    #     version: 'v1.31.0'
-    
-    # - name: Start Minikube
-    #   id: minikube
-    #   uses: medyagh/setup-minikube@latest
-    #   with:
-    #     addons: ingress
       
+    - name: Set KUBECONFIG
+      run: |
+        echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > $HOME/.kube/config
+        export KUBECONFIG=$HOME/.kube/config
+
     - name: Check kubectl version and nodes
       run: |
         kubectl version
