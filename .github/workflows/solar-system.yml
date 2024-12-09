@@ -134,20 +134,36 @@ jobs:
     - name: Install kubectl CLI
       uses: azure/setup-kubectl@v4
       with:
-        version: 'v1.29.0'
+        version: 'v1.31.0'
     
-    - name: start minikube
+    - name: Start Minikube
       id: minikube
       uses: medyagh/setup-minikube@latest
-    
-    # - name: Set Kubeconfig file
-    #   uses: azure/k8s-set-context@v3
-    #   with:
-    #     method: kubeconfig
-    #     kubeconfig: ${{ secrets.KUBECONFIG }}
+      with:
+        addons: ingress
       
     - name: Check kubectl version and nodes
       run: |
         kubectl version --client
-        echo "\n"
         kubectl get nodes
+
+    - name: Get Cluster IP of ingress-nginx-controller
+      id: get_cluster_ip
+      run: |
+        CLUSTER_IP=$(kubectl get service --namespace ingress-nginx ingress-nginx-controller -o jsonpath="{.spec.clusterIP}")
+        echo "CLUSTER_IP=$CLUSTER_IP" >> $GITHUB_ENV
+
+    - name: Replace Token in Manifest files
+      uses: cschleiden/replace-tokens@v1
+      with:
+        tokenPrefix: '_{_'
+        tokenSuffix: '_}_'
+        files: '["kubernetes/development/*.yaml"]'
+      env:
+        NAMESPACE: ${{ vars.NAMESPACE }}
+        REPLICAS: ${{ vars.REPLICAS }}
+        IMAGE: ${{ vars.DOCKERHUB_USERNAME }}/solar-system:${{ github.sha }}
+        INGRESS_IP: ${{ env.CLUSTER_IP }}
+    
+    - name: Check Kubernetes Manifests after token replacement
+      run: cat kubernetes/development/*.yaml
