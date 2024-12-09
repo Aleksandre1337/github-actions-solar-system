@@ -10,7 +10,7 @@ on:
 jobs:
   unit-testing:
     name: Unit Testing
-    runs-on: Self-hosted
+    runs-on: self-hosted
     container:
       image: node:18
     services:
@@ -58,7 +58,7 @@ jobs:
         MONGO_URI: 'mongodb://mongo:27017/superData'
         MONGO_USERNAME: non-prod-user
         MONGO_PASSWORD: non-prod-password
-    runs-on: Self-hosted
+    runs-on: self-hosted
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
     needs: [unit-testing, code-coverage]
     permissions: 
         packages: write
-    runs-on: Self-hosted
+    runs-on: self-hosted
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
@@ -126,7 +126,7 @@ jobs:
   
   dev-deploy:
     needs: [docker]
-    runs-on: Self-hosted
+    runs-on: self-hosted
     steps:
     - name: Checkout Repo
       uses: actions/checkout@v4
